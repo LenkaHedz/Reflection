@@ -1,0 +1,77 @@
+package main.java.ua.training;
+
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+
+public class ReflectionMethods {
+    private Class clazz;
+
+    public ReflectionMethods(Class clazz) {
+        this.clazz = clazz;
+    }
+
+    public Class getClazz() {
+        return clazz;
+    }
+
+    public void setClazz(Class clazz) {
+        this.clazz = clazz;
+    }
+
+    // Название пакета
+    public void getPackageName(){
+        System.out.println("Package name: " + clazz.getPackage().getName() );
+    }
+
+    // Которкое (простое) имя класса
+    public void getSimpleClassName(){
+        System.out.println("Simple class name: " + clazz.getSimpleName() );
+    }
+
+    // Список методов с аннотациями и типами параметров
+    public void getMetods() {
+        Method[] methods = clazz.getDeclaredMethods();
+        for (Method m : methods) {
+            // получаем аннотации
+            Annotation[] annotations = m.getAnnotations();
+            System.out.print("\t");
+            for (Annotation a : annotations)
+                System.out.print("@" + a.annotationType().getSimpleName() + " ");
+            System.out.println();
+
+            System.out.print("\t" + getModifiers(m.getModifiers()) +
+                    getType(m.getReturnType()) + " " + m.getName() + "(");
+            System.out.print(getParameters(m.getParameterTypes()));
+            System.out.println(") { }");
+        }
+        System.out.println("}");
+    }
+
+    public String getModifiers(int m) {
+        String modifiers = "";
+        if (Modifier.isPublic(m)) modifiers += "public ";
+        if (Modifier.isProtected(m)) modifiers += "protected ";
+        if (Modifier.isPrivate(m)) modifiers += "private ";
+        if (Modifier.isStatic(m)) modifiers += "static ";
+        if (Modifier.isAbstract(m)) modifiers += "abstract ";
+        return modifiers;
+    }
+
+    static String getParameters(Class[] params) {
+        String p = "";
+        for (int i = 0, size = params.length; i < size; i++) {
+            if (i > 0) p += ", ";
+            p += getType(params[i]) + " param" + i;
+        }
+        return p;
+    }
+
+    static String getType(Class clazz) {
+        String type = clazz.isArray()
+                ? clazz.getComponentType().getSimpleName()
+                : clazz.getSimpleName();
+        if (clazz.isArray()) type += "[]";
+        return type;
+    }
+}
